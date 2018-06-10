@@ -641,3 +641,27 @@ location / {
 }
 ```
 
+
+
+### Chapter 11. Http Basic Authentication
+
+#### 11.1 Using Basic Authentication 
+
+
+
+#### 11.2 Using Basic Authentication 
+
+**Problem**
+
+You need basic authentication to protect an NGINX location or server. 
+
+**Solution**
+
+```nginx
+location / {
+    auth_basic				"Private site";
+    auth_basic_user_file	conf.d/passwd;
+}
+```
+
+The auth_basic directives can be used in the HTTP, server, or loca‐ tion contexts. The auth_basic directive takes a string parameter, which is displayed on the basic authentication pop-up window when an unauthenticated user arrives. The auth_basic_user_file speci‐ fies a path to the user file, which was just described in  11.1.
