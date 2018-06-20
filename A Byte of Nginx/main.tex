@@ -1,0 +1,393 @@
+\documentclass{beamer}
+
+\usepackage{fancyhdr}
+\usepackage[quiet]{fontspec}
+\usepackage{tikz}
+\usepackage{almslides}
+\usepackage{moresize}
+\usepackage{hyperref}
+\usepackage{svg}
+\usepackage{amsmath}
+
+\usetikzlibrary{chains,decorations.pathmorphing,positioning,fit}
+\usetikzlibrary{decorations.shapes,calc,backgrounds}
+\usetikzlibrary{decorations.text,matrix}
+\usetikzlibrary{arrows,shapes.geometric,shapes.symbols,scopes}
+\usetikzlibrary{mindmap}
+
+%\usecolortheme{beaver}
+\setmonofont{Monaco}
+\setbeamercolor{structure}{fg=cyan!90!cyan}
+\setbeamertemplate{frametitle}
+{
+	\nointerlineskip
+	\begin{beamercolorbox}[sep=0.3cm,ht=1.8em,wd=\paperwidth]{frametitle}
+		\vbox{}\vskip-2ex%
+		\strut\insertframetitle\strut
+		\vskip-0.8ex%
+	\end{beamercolorbox}
+}
+
+\title{A Byte of Nginx}
+\author{Sheng Yuan}
+
+\begin{document}
+    
+\begin{frame}
+	\centering\includegraphics[width=0.7\textwidth]{nginx.png}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Contents}
+    \tableofcontents
+\end{frame}
+
+\section{Introduce}
+\begin{frame}
+\frametitle{Introduce}
+	\begin{figure}
+		\centering\includegraphics[width=0.7\textwidth]{nginx_architecture.png}
+	\end{figure}
+
+%	\begin{block}{Tools}
+%		\begin{Alms*}
+%			mongo ~~~\    mongoexport ~\ mongooplog ~\ mongos \\
+%			mongod ~~\    mongofiles ~~\ mongoperf ~~\ mongostat \\
+%			mongodump     mongoimport ~\ mongorestore  mongotop
+%		\end{Alms*}
+%	\end{block}
+
+Nginx is a web server which can also be used as a reverse proxy, load balancer, mail proxy and HTTP cache.
+\end{frame}
+
+
+\section{Configure and Grammar}
+
+\begin{frame}{Basics}
+
+\begin{minipage}[t]{0.5\textwidth}
+	\scriptsize
+	\begin{Alms*}
+		\$ \K{nginx} \\
+		\$ \K{nginx} -s reload \\
+		\$ \K{nginx}  -s stop \\
+		\$ \K{nginx} -s quit \\
+		\$ \K{nginx} -s reopen \\
+		\$ \K{nginx} -f /conf/nginx.conf \\
+		\\
+		\\
+		\$ service \K{nginx} start \\
+		\$ service \K{nginx} stop \\
+		\$ service \K{nginx} restart \\
+	\end{Alms*}
+\end{minipage}
+
+\end{frame}
+
+\section{Reverse Proxy}
+
+\section{Load Balance}
+\begin{frame}{HTTP Load Balance}
+	\begin{minipage}[t]{0.8\textwidth}
+		\begin{block}{Problem}
+			\vspace{0.02\textheight}
+			You need to distribute load between two or more HTTP servers.
+		\end{block}
+	
+		\begin{block}{Solution}
+			\vspace{0.02\textheight}
+			\scriptsize
+			\begin{Alms*}
+				\K{upstream} backend \{ \NI
+				\K{server} 10.10.12.45:80		\K{weight}=1; \\
+				\K{server} app.example.com:80	\K{weight}=2; \\
+				\ND \} \\
+				\K{server} \{ \NI
+				\K{location} / \{ \NI
+				\K{proxy\_pass} http://backend;
+				\ND \}
+				\ND \}
+			\end{Alms*}
+		\end{block}
+	\end{minipage}
+\end{frame}
+
+
+\begin{frame}{TCP Load Balance}
+\begin{minipage}[t]{0.8\textwidth}
+	\begin{block}{Problem}
+		\vspace{0.02\textheight}
+		You need to distribute load between two or more TCP servers.
+	\end{block}
+	
+	\begin{block}{Solution}
+		\vspace{0.02\textheight}
+		\scriptsize
+		\begin{Alms*}
+			\K{stream} \{ \NI
+			\K{upstream} mysql\_read \{ \NI
+			\K{server} read1.example.com:3306	\K{weight}=5; \\
+			\K{server} read1.example.com:3306; 	\\
+			\K{server} 10.10.12.34:3306		backup;
+			\ND \} \\
+			\K{server} \{ \NI
+			\K{listen} 3306; \\
+			\K{proxy\_pass} mysql\_read;
+			\ND \}
+			\ND \}
+		\end{Alms*}
+	\end{block}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Load Balancing methods}
+\begin{itemize}
+	\item Round robin
+	\item Least connections
+	\item Generic hash
+	\item Least time
+	\item IP hash
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Connection Limiting}
+
+\end{frame}
+
+
+\section{HTTP Caching}
+\begin{frame}{Massively Scalable Content Caching}
+	\begin{minipage}[t]{0.8\textwidth}
+	\begin{block}{Problem}
+		\vspace{0.02\textheight}
+		You need to cache content and need to define where the cache is stored.
+	\end{block}
+	
+	\begin{block}{Solution}
+		\vspace{0.02\textheight}
+		\scriptsize
+		\begin{Alms*}
+			
+			\K{proxy\_cache\_path} 	/var/nginx/cache \NI\NI
+			keys\_zone=CACHE:60m
+			levels=1:2 \\
+			inactive=3h \\
+			max\_size=20g;
+			\ND\ND \K{proxy\_cache} CACHE;
+			
+		\end{Alms*}
+	\end{block}
+\end{minipage}
+\end{frame}
+
+
+
+\section{Security and Access}
+\begin{frame}{Controlling Access}
+
+\end{frame}
+
+\section{Deployment and Operation}
+\begin{frame}{Configuring Logs}
+	\scriptsize
+	\begin{block}{Specify AND as well as OR Conditions}
+		\begin{Alms*}
+			db.users.find(\NI \{"name":"yuansheng", "age":23\} \ND) \\
+		
+		\end{Alms*}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}{Performance Tuning}
+\begin{block}{Keeping Connections Open to Clients}
+	\vspace{0.02\textheight}
+	\scriptsize
+	\begin{Alms*}
+		http \{ \NI
+		keepalive\_requests 320; \\
+		keepalive\_timeout 300s;
+		\ND \}
+	\end{Alms*}
+\end{block}
+
+\begin{block}{Keeping Connections Open Upstream}
+	\vspace{0.02\textheight}
+	\scriptsize
+	\begin{Alms*}
+		proxy\_http\_version 1.1; \\
+		proxy\_set\_header Connection ""; \\
+		upstream backend \{ \NI
+			server 10.0.0.42; \\
+			server 10.0.2.56; \\
+			keepalive 32;
+		\ND \}
+	\end{Alms*}
+\end{block}
+\end{frame}
+
+
+\begin{frame}{OS Tuning}
+\begin{itemize}
+	\item Raising the number of open file descriptors is a more common need.
+	\item Check the kernel setting for net.core.somaxconn, which is the maximum number of connections that can be queued by the kernel for NGINX to process. 
+	\item Enable more ephemeral ports. 
+\end{itemize}
+
+\end{frame}
+
+%
+%\begin{frame}{The Aggregation Framework}
+%\begin{minipage}[t]{0.3\textwidth}
+%	\begin{Alms*}
+%	• \$group \\
+%	• \$limit \\
+%	• \$match \\
+%	• \$sort \\
+%	• \$unwind \\
+%	• \$project \\
+%	• \$lookup \\
+%	\end{Alms*}
+%\end{minipage}
+%\hfill
+%\begin{minipage}[t]{0.7\textwidth}
+%	
+%\end{minipage}
+%\end{frame}
+
+
+%\section{Python and MongoDB}
+%\begin{frame}{Python and MongoDB}
+%\scriptsize
+%\begin{Alms*}
+%	\T{int} \V{udp\_sendmsg}(\T{struct sock *}\V{sk},
+%	\T{struct msghdr *}\V{msg}, \textrm{\ldots}) \\
+%	\{ \NI
+%	\vdots \\
+%	\tikzanchor{lock 1}%
+%	\only<8->{\highlight<8-9>{\V{lock\_sock}(\V{sk});} \\}%
+%	\K{if} \highlight<6-8>{(\V{unlikely}(\V{sk}$→$\V{pending}))} \{ \NI
+%	\highlight<5>{
+%		\CCOM{Socket is already corked while preparing it} \\
+%		\CCOM{\ldots\,which is an evident application bug. --ANK}
+%	} \\
+%	\only<9->{\highlight<9>{\V{release\_sock}(\V{sk});} \\}%
+%	\V{LIMIT\_NETDEBUG}(\V{KERN\_DEBUG} \S{udp cork app bug 2}); \\
+%	\highlight<6>{\K{return} -\D{EINVAL};}
+%	\ND\} \\[4pt]
+%	\tikzanchor{lock 2}%
+%	\only<-7>{\highlight<2,7>{\V{lock\_sock}(\V{sk});} \\}%
+%	\highlight<3>{%
+%		\V{ret} = \V{ip\_append\_data}(\V{sk}, \V{msg}$→$\V{msg\_iov},
+%		\V{ulen}, \textrm{\ldots});} \\
+%	\vdots \\
+%	\highlight<4>{\V{release\_sock}(\V{sk});} \\
+%	\K{return} \V{ret};
+%	\ND\}
+%\end{Alms*}
+%\end{frame}
+
+%\section{GridFS}
+%\begin{frame}{GridFS}
+%	GridFS is a specification for storing and retrieving files that exceed the BSON-document size limit of 16 MB.
+%	\vspace{0.05\textheight}
+%	
+%	\begin{minipage}[t]{0.45\textwidth}
+%		%\includegraphics[width=\linewidth]{golang}
+%		Instead of storing a file in a single document, GridFS divides the file into parts, or chunks, and stores each chunk as a separate document. By default, GridFS uses a chunk size of 255 kB; that is, GridFS divides a file into chunks of 255 kB with the exception of the last chunk.
+%	\end{minipage}%
+%	\hfill
+%	\begin{minipage}[t]{0.45\textwidth}
+%		\scriptsize
+%		\begin{Alms*}
+%		 \$ \K{mongofiles} -d=test \K{list}\\
+%         \$ \K{mongofiles} \K{put} <filename>\\
+%         \$ \K{mongofiles} \K{get} <filename>\\
+%         \$ \K{mongofiles} \K{delete} <filename>\\
+%         \$ \K{mongofiles} \K{search} <filename>\\
+%         \$ \K{mongofiles} \K{get\_id} <\_id>\\
+%         \$ \K{mongofiles} \K{delete\_id} <\_id>\\
+%		\end{Alms*}
+%	\end{minipage}
+%\end{frame}
+
+
+%\begin{frame}{When to Use GridFS}
+%    \begin{itemize}
+%        \item When you want to keep your files and metadata automatically synced and deployed across a number of systems and facilities, you can use GridFS.
+%        \item \textcolor{red}{Do not use GridFS if you need to update the content of the entire file atomically. As an alternative you can store multiple versions of each file and specify the current version of the file in the metadata. }
+%    \end{itemize}
+%\end{frame}
+
+
+%
+%\begin{frame}{Protect your Server with  Authentication}
+%    MongoDB supports a role-based access control authentication model with predefined system roles and user-defined custom roles.
+%    
+%    \begin{minipage}[t]{0.64\textwidth}
+%    	\scriptsize
+%    	\begin{Alms*}
+%    		> use admin \\
+%    		> db.createUser(\{\NI
+%    		"user":"admin", \\
+%    		"pwd":"pass", \\
+%    		"roles":[ \NI
+%    		\{role:"readWrite", db:"admin"\}, \\
+%    		\{role:"userAdminAnyDatabase", \\db:"admin"\}
+%    		\ND]
+%    		\ND \}) \\
+%    		\$ mongod --auth \\
+%    		> use admin \\
+%    		> show collections \\
+%    		> db.auth("admin", "pass") \\
+%    		> db.getUsers() \\
+%    		> use firebase
+%    		
+%    	\end{Alms*}
+%    \end{minipage}
+%	\hfill
+%	\begin{minipage}[t]{0.35\textwidth}
+%		\scriptsize
+%		\begin{block}{User Roles}
+%			\begin{itemize}
+%				\item read
+%				\item readWrite
+%				\item userAdmin
+%				\item readAnyDatabase
+%				\item readWriteAnyDatabase
+%				\item userAdminAnyDatabase
+%				\item dbAdminAnyDatabase
+%				\item clusterAdmin
+%			\end{itemize}
+%		\end{block}
+%	\end{minipage}
+%\end{frame}
+
+
+\begin{frame}{Other Tools}
+	\begin{block}{Tools}
+		\begin{Alms*}
+			mongo ~~~\    mongoexport ~\ \T{mongooplog} ~\ \T{mongos} \\
+			mongod ~~\    mongofiles ~~\ \T{mongoperf} ~~\ \T{mongostat} \\
+			mongodump     mongoimport ~\ mongorestore  \T{mongotop}
+		\end{Alms*}
+	
+	\begin{description}
+		\item[mongooplog] Pulls oplog entries from another mongod instance.
+		\item[mongos] MongoDB shard process.
+		\item[mongoperf] Check disk I/O performance.
+		\item[mongostat] Returns counters of database operation. 
+		\item[mongotop] Tracks/reports MongoDB read/write activities.
+	\end{description}
+	\end{block}
+
+\end{frame}
+
+\begin{frame}{References}
+	\small
+    \bibliography{ref}
+    \bibliographystyle{plain}
+\end{frame}
+
+\end{document}

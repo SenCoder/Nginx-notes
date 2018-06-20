@@ -2,6 +2,8 @@
 
 
 
+
+
 ### Chapter 1. High Performance and load balancing
 
 
@@ -21,7 +23,7 @@ upstream backend {
 }
 server {
     location / {
-        proxy_pass http:backend;
+        proxy_pass http://backend;
     }
 }
 ```
@@ -287,7 +289,7 @@ Use DNS to round robin across NGINX servers by adding multiple IP addresses to a
 
 
 
-4.3 Load Balancing on EC2
+#### 4.3 Load Balancing on EC2
 
 **Problem**
 
@@ -448,7 +450,7 @@ http {
 }
 ```
 
-The example location block tells NGINX that files in the videos directory are of MP4 format type and can be streamed with progres‐ sive download support. The second location block instructs NGINX that any files ending in . v are of Flash Video format and can be streamed with HTTP pseudostreaming support. 
+The example location block tells NGINX that files in the videos directory are of MP4 format type and can be streamed with progressive download support. The second location block instructs NGINX that any files ending in . v are of Flash Video format and can be streamed with HTTP pseudostreaming support. 
 
 Streaming video or audio files in NGINX is as simple as a single directive. Progressive download enables the client to initiate play‐ back of the media before the file has finished downloading.  
 
@@ -822,7 +824,7 @@ http {
 
 #### Problem
 
-You need to automate your tests with a load driver to gain consis‐ tency and repeatability in your testing. 
+You need to automate your tests with a load driver to gain consistency and repeatability in your testing. 
 
 **Solution**
 
@@ -922,7 +924,7 @@ You need to tune your operating system to accept more connections to handle spik
 
 **Solution**
 
-Check the kernel setting for net.core.somaxconn, which is the maxi‐ mum number of connections that can be queued by the kernel for NGINX to process. 
+Check the kernel setting for net.core.somaxconn, which is the maximum number of connections that can be queued by the kernel for NGINX to process. 
 
 
 
@@ -936,7 +938,7 @@ Enable more ephemeral ports. When NGINX acts as a reverse proxy or load balancer
 
 ### Chapter 15. Practical Ops Tips
 
-#### 15.1 Using Includes for Clean Con gs 
+#### 15.1 Using Includes for Clean Configs 
 
 **Solution**
 

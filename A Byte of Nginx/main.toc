@@ -1,0 +1,8 @@
+\beamer@endinputifotherversion {3.36pt}
+\beamer@sectionintoc {1}{Introduce}{3}{0}{1}
+\beamer@sectionintoc {2}{Configure and Grammar}{4}{0}{2}
+\beamer@sectionintoc {3}{Reverse Proxy}{5}{0}{3}
+\beamer@sectionintoc {4}{Load Balance}{5}{0}{4}
+\beamer@sectionintoc {5}{HTTP Caching}{9}{0}{5}
+\beamer@sectionintoc {6}{Security and Access}{10}{0}{6}
+\beamer@sectionintoc {7}{Deployment and Operation}{10}{0}{7}

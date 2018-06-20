@@ -1,0 +1,14 @@
+\begin{thebibliography}{}
+
+\bibitem[Chodorow, 2013]{Chodorow2013MongoDB}
+Chodorow, K. (2013).
+\newblock {\em MongoDB: The definitive guide}.
+\newblock O'Reilly Media, Inc.
+
+\bibitem[Plugge et~al., 2015]{plugge2015definitive}
+Plugge, E., Hows, D., Membrey, P., and Hawkins, T. (2015).
+\newblock {\em The Definitive Guide to MongoDB: A complete guide to dealing
+  with Big Data using MongoDB}.
+\newblock Apress.
+
+\end{thebibliography}
