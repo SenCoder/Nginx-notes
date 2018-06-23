@@ -64,7 +64,6 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 \section{Configure and Grammar}
 
 \begin{frame}{Basics}
-
 \begin{minipage}[t]{0.5\textwidth}
 	\scriptsize
 	\begin{Alms*}
@@ -81,10 +80,116 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 		\$ service \K{nginx} restart \\
 	\end{Alms*}
 \end{minipage}
+\end{frame}
 
+\begin{frame}{Config Grammar}
+
+\begin{minipage}[t]{0.55\textwidth}
+\begin{itemize}
+	\item \textbf{simple directive}  the name and parameters separated by spaces and ends with a semicolon (;)
+	\item \textbf{block directive}  the same structure as a simple directive, but instead of the semicolon it ends with a set of additional instructions surrounded by braces (\{ and \})
+\end{itemize}
+\end{minipage}
+\hfil
+\begin{minipage}[t]{0.4\textwidth}
+		\scriptsize
+		\begin{Alms*}
+			\K{http} \{ \NI
+			\K{server} \{ \NI	
+			\K{location} / \{ \NI
+			\K{root} /data/www;
+			\ND \} \\
+			
+			\K{location} /images/ \{ \NI
+			\K{root} /data;
+			\ND \}
+			\ND \}
+			\ND \}
+		\end{Alms*}
+\end{minipage}
+\end{frame}
+
+\section{Web Server}
+\begin{frame}{Web Server}
+\begin{minipage}[t]{0.48\textwidth}
+	
+\begin{block}{Simple Web Server}
+	\vspace{0.01\textheight}
+	\scriptsize
+	\begin{Alms*}
+		\K{http} \{ \NI
+	\K{server} \{ \NI	
+	\K{location} / \{ \NI
+	\K{root} /data/www;
+	\ND \} \\
+	
+	\K{location} /images/ \{ \NI
+	\K{root} /data;
+	\ND \}
+	\ND \}
+	\ND \}
+	\\
+	\\
+	The static file locations: \\
+	/data/www \\
+	/data/images
+	\end{Alms*}
+\end{block}
+
+\end{minipage}
+\hfil
+\begin{minipage}[t]{0.48\textwidth}
+	\begin{block}{Web Server with alias}
+		\vspace{0.01\textheight}
+		\scriptsize
+		\begin{Alms*}
+			\K{http} \{ \NI
+			\K{server} \{ \NI
+			\K{location} /static \{ \NI
+			\K{alias} /opt/alexa/public;
+			\ND \}
+			\ND \}
+			\ND \}
+			\\
+			\\
+			\\
+			\\
+			\\
+			The static file locations: \\
+			/opt/alexa/public
+		\end{Alms*}
+	\end{block}
+\end{minipage}
 \end{frame}
 
 \section{Reverse Proxy}
+\begin{frame}{Proxy Server}
+	\begin{block}{Solution}
+	\vspace{0.01\textheight}
+	\scriptsize
+	\begin{Alms*}
+		server \{ \NI
+			location /debug \{ \NI
+				proxy\_pass http://127.0.0.1:8000/debug;
+			\ND \}
+			\\
+			\\
+			location /static \{ \NI
+				root /data/public;
+			\ND \}
+			\\
+			\\
+			location /api/v2 \{ \NI
+			proxy\_http\_version 1.1; \\
+			add\_header Access-Control-Allow-Origin *; \\
+			proxy\_pass http://127.0.0.1:8080/api/v2; 
+			\ND \} 
+		\ND \}
+		\\
+		
+	\end{Alms*}
+\end{block}
+\end{frame}
 
 \section{Load Balance}
 \begin{frame}{HTTP Load Balance}
@@ -169,12 +274,14 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 		\scriptsize
 		\begin{Alms*}
 			
-			\K{proxy\_cache\_path} 	/var/nginx/cache \NI\NI
+			\K{proxy\_cache\_path} 	/var/nginx/cache \NI
+			\\
 			keys\_zone=CACHE:60m
 			levels=1:2 \\
 			inactive=3h \\
 			max\_size=20g;
-			\ND\ND \K{proxy\_cache} CACHE;
+			\\
+			\ND \K{proxy\_cache} CACHE;
 			
 		\end{Alms*}
 	\end{block}
@@ -182,21 +289,68 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 \end{frame}
 
 
-
 \section{Security and Access}
 \begin{frame}{Controlling Access}
-
+	\begin{block}{Solution}
+	\vspace{0.02\textheight}
+	\scriptsize
+	\begin{Alms*}
+		\K{location} /admin/ \{ \NI
+			\K{deny} 10.0.0.1; \\
+			\K{allow} 10.0.0.0/20; \\
+			\K{allow} 2001:0db8::/32; \\
+			\K{deny} all;
+		\ND \}
+	\end{Alms*}
+\end{block}
 \end{frame}
 
+
+\begin{frame}{Force Https}
+	\vspace{0.02\textheight}
+	\scriptsize
+	\begin{Alms*}
+		\K{server}  \{ \NI
+			\K{listen} 80;
+			\K{return} 301 https://testai.tclking.com\$request\_uri;
+		\ND \}
+		\\
+		\\
+		\\
+		\K{add\_header} Strict-Transport-Security max-age=31536000;
+	\end{Alms*}
+\end{frame}
+
+
+
 \section{Deployment and Operation}
+
 \begin{frame}{Configuring Logs}
 	\scriptsize
-	\begin{block}{Specify AND as well as OR Conditions}
-		\begin{Alms*}
-			db.users.find(\NI \{"name":"yuansheng", "age":23\} \ND) \\
+	\begin{Alms*}
+		\K{http} \{ \NI
+			\K{log\_format}  geoproxy \NI
+			'[\$time\_local] \$remote\_addr ' \\
+			'\$realip\_remote\_addr \$remote\_user ' \\
+			'\$request\_method \$server\_protocol ' \\
+			'\$scheme \$server\_name \$uri \$status ' \\
+			'\$request\_time \$body\_bytes\_sent ' \\
+			'\$geoip\_city\_country\_code3 \$geoip\_region ' \\
+			'\$geoip\_city" \$http\_x\_forwarded\_for ' \\
+			'\$upstream\_status \$upstream\_response\_time ' \\
+			'"\$http\_referer" "\$http\_user\_agent"';
+			\ND
+			\\
 		
-		\end{Alms*}
-	\end{block}
+			\K{access\_log} /var/log/nginx/access.log geoproxy buffer=32k  \\
+			flush=1m; \\
+			\\
+			\K{error\_log} /var/log/nginx/error.log main buffer=32k \\
+			flush=1m;
+		\ND \}
+	\end{Alms*}
+
+	The buffer parameter of the access\_log directive denotes the size of a memory buffer that can be filled with log data before being written to disk. The flush parameter of the access\_log directive sets the longest amount of time a log can remain in a buffer before being written to disk. 
 \end{frame}
 
 

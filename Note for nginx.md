@@ -630,7 +630,7 @@ http { # All directives used below are also valid in stream
 
 **Problem**
 
-You need to encrypt traffic between NGINX and the upstream ser‐ vice and set specific negotiation rules for compliance regulations or if the upstream is outside of your secured network. 
+You need to encrypt traffic between NGINX and the upstream service and set specific negotiation rules for compliance regulations or if the upstream is outside of your secured network. 
 
 **Solution**
 
@@ -855,7 +855,7 @@ You need to keep connections open to upstream servers for reuse to enhance your 
 
 **Solution**
 
-Use the keepalive directive in the upstream context to keep con‐ nections open to upstream servers for reuse: 
+Use the keepalive directive in the upstream context to keep connections open to upstream servers for reuse: 
 
 ```nginx
 proxy_http_version 1.1;
