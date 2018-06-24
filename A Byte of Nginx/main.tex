@@ -8,16 +8,21 @@
 \usepackage{hyperref}
 \usepackage{svg}
 \usepackage{amsmath}
+\usepackage{multirow}
 
 \usetikzlibrary{chains,decorations.pathmorphing,positioning,fit}
 \usetikzlibrary{decorations.shapes,calc,backgrounds}
 \usetikzlibrary{decorations.text,matrix}
 \usetikzlibrary{arrows,shapes.geometric,shapes.symbols,scopes}
 \usetikzlibrary{mindmap}
+\usetikzlibrary{trees}
+
+\usetheme{Hannover}
 
 %\usecolortheme{beaver}
 \setmonofont{Monaco}
 \setbeamercolor{structure}{fg=cyan!90!cyan}
+\setbeamerfont{block title}{size=\small}
 \setbeamertemplate{frametitle}
 {
 	\nointerlineskip
@@ -57,7 +62,7 @@
 %		\end{Alms*}
 %	\end{block}
 
-Nginx is a web server which can also be used as a reverse proxy, load balancer, mail proxy and HTTP cache.
+Nginx is a web server which can also be used as a reverse proxy, load balancer, mail proxy and HTTP cache\cite{nedelcu2015nginx}.
 \end{frame}
 
 
@@ -65,21 +70,28 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 
 \begin{frame}{Basics}
 \begin{minipage}[t]{0.5\textwidth}
-	\scriptsize
-	\begin{Alms*}
-		\$ \K{nginx} \\
-		\$ \K{nginx} -s reload \\
-		\$ \K{nginx}  -s stop \\
-		\$ \K{nginx} -s quit \\
-		\$ \K{nginx} -s reopen \\
-		\$ \K{nginx} -f /conf/nginx.conf \\
-		\\
-		\\
-		\$ service \K{nginx} start \\
-		\$ service \K{nginx} stop \\
-		\$ service \K{nginx} restart \\
-	\end{Alms*}
+	
+	\begin{block}{Basic usage}
+		\scriptsize
+		\begin{Alms*}
+			\$ \K{nginx} \\
+			\$ \K{nginx} -s reload \\
+			\$ \K{nginx}  -s stop \\
+			\$ \K{nginx} -s quit \\
+			\$ \K{nginx} -s reopen \\
+			\$ \K{nginx} -f /conf/nginx.conf \\
+			\\
+			\\
+			\$ service \K{nginx} start \\
+			\$ service \K{nginx} stop \\
+			\$ service \K{nginx} restart \\
+			
+			\$ kill -QUIT \$( cat /var/run/nginx.pid )
+		\end{Alms*}
+	\end{block}
+	
 \end{minipage}
+
 \end{frame}
 
 \begin{frame}{Config Grammar}
@@ -96,12 +108,12 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 		\begin{Alms*}
 			\K{http} \{ \NI
 			\K{server} \{ \NI	
-			\K{location} / \{ \NI
-			\K{root} /data/www;
+			\K{location} \V{/} \{ \NI
+			\K{root} \V{/data/www};
 			\ND \} \\
 			
-			\K{location} /images/ \{ \NI
-			\K{root} /data;
+			\K{location} \V{/images/} \{ \NI
+			\K{root} \V{/data};
 			\ND \}
 			\ND \}
 			\ND \}
@@ -111,6 +123,10 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 
 \section{Web Server}
 \begin{frame}{Web Server}
+\tikzstyle{every node}=[draw=black,thick,anchor=west]
+\tikzstyle{selected}=[draw=red,fill=red!30]
+\tikzstyle{optional}=[dashed,fill=gray!50]
+
 \begin{minipage}[t]{0.48\textwidth}
 	
 \begin{block}{Simple Web Server}
@@ -129,12 +145,24 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 	\ND \}
 	\ND \}
 	\\
-	\\
-	The static file locations: \\
-	/data/www \\
-	/data/images
 	\end{Alms*}
 \end{block}
+
+\begin{tikzpicture}[%
+grow via three points={one child at (0.5,-0.7) and
+	two children at (0.5,-0.7) and (0.5,-1.4)},
+edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+\node {data}
+child { node {www}}
+child { node [selected] {tex}
+	child { node {generic}}
+%	child { node [optional] {latex}}
+}
+%child [missing] {}				
+%child [missing] {}				
+child [missing] {}				
+child { node {images}};
+\end{tikzpicture}
 
 \end{minipage}
 \hfil
@@ -146,25 +174,41 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 			\K{http} \{ \NI
 			\K{server} \{ \NI
 			\K{location} /static \{ \NI
-			\K{alias} /opt/alexa/public;
+			\K{alias} /opt/public;
+			\ND \} \\
+			\K{location} /static \{ \NI
+			\K{root} /opt/public;
 			\ND \}
 			\ND \}
 			\ND \}
 			\\
-			\\
-			\\
-			\\
-			\\
-			The static file locations: \\
-			/opt/alexa/public
 		\end{Alms*}
 	\end{block}
+
+\begin{tikzpicture}[%
+grow via three points={one child at (0.5,-0.7) and
+	two children at (0.5,-0.7) and (0.5,-1.4)},
+edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+\node {opt}
+child { node {public}
+	child { node [selected] {static}
+		child { node [optional] {index.html}}
+		child [missing] {}
+		child [missing] {}	
+	}
+	child [missing] {}
+	child { node [optional] {index.html}}
+};
+
+\end{tikzpicture}
+
 \end{minipage}
 \end{frame}
 
-\section{Reverse Proxy}
+\section{Reverse Proxy\cite{dejonghe2017nginx}}
 \begin{frame}{Proxy Server}
-	\begin{block}{Solution}
+
+	\begin{block}{Proxy Server}
 	\vspace{0.01\textheight}
 	\scriptsize
 	\begin{Alms*}
@@ -177,18 +221,36 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 			location /static \{ \NI
 				root /data/public;
 			\ND \}
-			\\
-			\\
-			location /api/v2 \{ \NI
-			proxy\_http\_version 1.1; \\
-			add\_header Access-Control-Allow-Origin *; \\
-			proxy\_pass http://127.0.0.1:8080/api/v2; 
-			\ND \} 
 		\ND \}
 		\\
 		
 	\end{Alms*}
 \end{block}
+
+\begin{block}{CORS}
+	\vspace{0.01\textheight}
+	\scriptsize
+	\begin{Alms*}
+		
+		map \$request\_method \$cors\_method \{ \NI
+			OPTIONS 11;
+			GET 1;
+			POST 1;
+			default 0;
+		\ND \}
+		\\
+		server \{ \NI
+		location /api/v2 \{ \NI
+		proxy\_http\_version 1.1; \\
+		add\_header Access-Control-Allow-Origin *.mydomain.com; \\
+		proxy\_pass http://127.0.0.1:8080/api/v2; 
+		\ND \} 
+		\ND \}
+		\\
+		
+	\end{Alms*}
+\end{block}
+
 \end{frame}
 
 \section{Load Balance}
@@ -257,7 +319,17 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 
 
 \begin{frame}{Connection Limiting}
+\scriptsize
 
+
+
+
+\begin{itemize}
+	\item \textcolor{red}{limit\_conn and limit\_conn\_zone} – Limit the number of client connections NGINX accepts, for example from a single IP address. Setting them can help prevent individual clients from opening too many connections and consuming more than their share of resources.
+	\item \textcolor{red}{limit\_rate} – Limits the rate at which responses are transmitted to a client, per connection (so clients that open multiple connections can consume this amount of bandwidth for each connection). Setting a limit can prevent the system from being overloaded by certain clients, ensuring more even quality of service for all clients.
+	\item \textcolor{red}{limit\_req and limit\_req\_zone} – Limit the rate of requests being processed by NGINX, which has the same benefits as setting limit\_rate. They can also improve security, especially for login pages, by limiting the request rate to a value reasonable for human users but too slow for programs trying to overwhelm your application with requests (such as bots in a DDoS attack).
+	\item \textcolor{red}{max\_conns}  parameter to the server directive in an upstream configuration block – Sets the maximum number of simultaneous connections accepted by a server in an upstream group. Imposing a limit can help prevent the upstream servers from being overloaded. Setting the value to 0 (zero, the default) means there is no limit.
+\end{itemize}
 \end{frame}
 
 
@@ -311,11 +383,21 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 	\scriptsize
 	\begin{Alms*}
 		\K{server}  \{ \NI
-			\K{listen} 80;
-			\K{return} 301 https://testai.tclking.com\$request\_uri;
+			\K{listen} \V{80}; \\
+			\K{return} \V{301} https://testai.tclking.com\$request\_uri;
 		\ND \}
 		\\
 		\\
+		\K{server}  \{ \NI
+		\K{listen} \V{443}; \\
+		\K{ssl}          on; \\
+		\K{ssl\_certificate}     /usr/share/certificates/tcl/xxx.crt; \\
+		\K{ssl\_certificate\_key}  /usr/share/certificates/tcl/xxx.key; \\
+		
+		\K{ssl\_session\_timeout}  5m;
+		\ND \}
+		\\
+		
 		\\
 		\K{add\_header} Strict-Transport-Security max-age=31536000;
 	\end{Alms*}
@@ -364,6 +446,8 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 		keepalive\_timeout 300s;
 		\ND \}
 	\end{Alms*}
+keepalive\_requests: The number of requests a client can make over a single keepalive connection. The default is 100, but a much higher value can be especially useful for testing with a load‑generation tool, which generally sends a large number of requests from a single client. \\
+keepalive\_timeout: How long an idle keepalive connection remains open.
 \end{block}
 
 \begin{block}{Keeping Connections Open Upstream}
@@ -378,16 +462,30 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 			keepalive 32;
 		\ND \}
 	\end{Alms*}
+
+keepalive: The number of idle keepalive connections to an upstream server that remain open for each worker process. There is no default value.
+To enable keepalive connections to upstream servers you must also include the following directives in the configuration.
 \end{block}
 \end{frame}
 
 
-\begin{frame}{OS Tuning}
+\begin{frame}{OS Tuning\cite{sharma2015nginx}}
 \begin{itemize}
 	\item Raising the number of open file descriptors is a more common need.
 	\item Check the kernel setting for net.core.somaxconn, which is the maximum number of connections that can be queued by the kernel for NGINX to process. 
 	\item Enable more ephemeral ports. 
 \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Global Parameters}
+
+\begin{description}
+	\item[worker\_processes\cite{aivaliotis2016mastering}] This is the number of worker processes
+that will be started. These will handle all connections made by the clients. A good rule of thumb is to set this equal to the number of processor cores for CPU-bound loads and to multiply this number by 1.5 to 2 for I/O bound loads.
+	\item[worker\_connections] This directive configures the maximum number of simultaneous connections
+that a worker process may have open. This includes, but is not limited to, client connections and connections to upstream servers. This is especially important on reverse proxy servers. some additional tuning may be required at the operating system level in order to reach this number of simultaneous connections.
+\end{description}
 
 \end{frame}
 
@@ -440,30 +538,6 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 %	\K{return} \V{ret};
 %	\ND\}
 %\end{Alms*}
-%\end{frame}
-
-%\section{GridFS}
-%\begin{frame}{GridFS}
-%	GridFS is a specification for storing and retrieving files that exceed the BSON-document size limit of 16 MB.
-%	\vspace{0.05\textheight}
-%	
-%	\begin{minipage}[t]{0.45\textwidth}
-%		%\includegraphics[width=\linewidth]{golang}
-%		Instead of storing a file in a single document, GridFS divides the file into parts, or chunks, and stores each chunk as a separate document. By default, GridFS uses a chunk size of 255 kB; that is, GridFS divides a file into chunks of 255 kB with the exception of the last chunk.
-%	\end{minipage}%
-%	\hfill
-%	\begin{minipage}[t]{0.45\textwidth}
-%		\scriptsize
-%		\begin{Alms*}
-%		 \$ \K{mongofiles} -d=test \K{list}\\
-%         \$ \K{mongofiles} \K{put} <filename>\\
-%         \$ \K{mongofiles} \K{get} <filename>\\
-%         \$ \K{mongofiles} \K{delete} <filename>\\
-%         \$ \K{mongofiles} \K{search} <filename>\\
-%         \$ \K{mongofiles} \K{get\_id} <\_id>\\
-%         \$ \K{mongofiles} \K{delete\_id} <\_id>\\
-%		\end{Alms*}
-%	\end{minipage}
 %\end{frame}
 
 
@@ -519,26 +593,38 @@ Nginx is a web server which can also be used as a reverse proxy, load balancer, 
 %\end{frame}
 
 
-\begin{frame}{Other Tools}
-	\begin{block}{Tools}
-		\begin{Alms*}
-			mongo ~~~\    mongoexport ~\ \T{mongooplog} ~\ \T{mongos} \\
-			mongod ~~\    mongofiles ~~\ \T{mongoperf} ~~\ \T{mongostat} \\
-			mongodump     mongoimport ~\ mongorestore  \T{mongotop}
-		\end{Alms*}
-	
-	\begin{description}
-		\item[mongooplog] Pulls oplog entries from another mongod instance.
-		\item[mongos] MongoDB shard process.
-		\item[mongoperf] Check disk I/O performance.
-		\item[mongostat] Returns counters of database operation. 
-		\item[mongotop] Tracks/reports MongoDB read/write activities.
-	\end{description}
-	\end{block}
-
+\begin{frame}{Conclusion}
+\centering
+\resizebox{!}{0.8\textheight} {
+\begin{tikzpicture}
+\path[mindmap,concept color=black,text=white]
+node[concept] {Nginx}
+[clockwise from=0]
+% note that ‘sibling angle’ can only be defined in % ‘level 1 concept/.append style={}’
+child[concept color=green!50!black] {
+node[concept] {Deploy}
+[clockwise from=90]
+child { node[concept] {https} }
+child { node[concept] {CORS} }
+child { node[concept] {http cache} } 
+child { node[concept] {tuning} }
+}
+child[concept color=blue] {
+node[concept] {Load balance}
+[clockwise from=-30]
+child { node[concept] {http and tcp} } 
+child { node[concept] {load balancing methods} }
+}
+child[concept color=red] { node[concept] {Web server} }
+child[concept color=orange] { node[concept] {Reverse proxy} };
+\end{tikzpicture}
+}
 \end{frame}
 
 \begin{frame}{References}
+\setbeamertemplate{bibliography entry title}{}
+\setbeamertemplate{bibliography entry location}{}
+\setbeamertemplate{bibliography entry note}{}
 	\small
     \bibliography{ref}
     \bibliographystyle{plain}
