@@ -257,6 +257,7 @@ child { node {public}
 \begin{frame}{HTTP Load Balance}
 	\begin{minipage}[t]{0.8\textwidth}
 		\begin{block}{Problem}
+			\scriptsize
 			\vspace{0.02\textheight}
 			You need to distribute load between two or more HTTP servers.
 		\end{block}
@@ -308,27 +309,35 @@ child { node {public}
 \end{frame}
 
 \begin{frame}{Load Balancing methods}
+
+\scriptsize
+\begin{block}{Problem}
+	\vspace{0.02\textheight}
+	You need to choose a LB method.
+\end{block}
+
+\begin{block}{Solution}
 \begin{itemize}
-	\item Round robin
-	\item Least connections
-	\item Generic hash
-	\item Least time
-	\item IP hash
+	\item \textcolor{cyan}{Round robin} Requests are distributed evenly across the servers, with server weights taken into consideration. This method is used by default (there is no directive for enabling it)
+	\item \textcolor{cyan}{Least connections} A request is sent to the server with the least number of active connections, again with server weights taken into consideration
+	\item \textcolor{cyan}{Generic hash}
+	\item \textcolor{cyan}{IP hash} The server to which a request is sent is determined from the client IP address. In this case, either the first three octets of the IPv4 address or the whole IPv6 address are used to calculate the hash value. The method guarantees that requests from the same address get to the same server unless it is not available
+	\item \textcolor{cyan}{Least time} Only supported in Nginx plus.
 \end{itemize}
+\end{block}
+
 \end{frame}
+
 
 
 \begin{frame}{Connection Limiting}
 \scriptsize
 
-
-
-
 \begin{itemize}
-	\item \textcolor{red}{limit\_conn and limit\_conn\_zone} – Limit the number of client connections NGINX accepts, for example from a single IP address. Setting them can help prevent individual clients from opening too many connections and consuming more than their share of resources.
-	\item \textcolor{red}{limit\_rate} – Limits the rate at which responses are transmitted to a client, per connection (so clients that open multiple connections can consume this amount of bandwidth for each connection). Setting a limit can prevent the system from being overloaded by certain clients, ensuring more even quality of service for all clients.
-	\item \textcolor{red}{limit\_req and limit\_req\_zone} – Limit the rate of requests being processed by NGINX, which has the same benefits as setting limit\_rate. They can also improve security, especially for login pages, by limiting the request rate to a value reasonable for human users but too slow for programs trying to overwhelm your application with requests (such as bots in a DDoS attack).
-	\item \textcolor{red}{max\_conns}  parameter to the server directive in an upstream configuration block – Sets the maximum number of simultaneous connections accepted by a server in an upstream group. Imposing a limit can help prevent the upstream servers from being overloaded. Setting the value to 0 (zero, the default) means there is no limit.
+	\item \textcolor{cyan}{limit\_conn and limit\_conn\_zone} – Limit the number of client connections NGINX accepts, for example from a single IP address. Setting them can help prevent individual clients from opening too many connections and consuming more than their share of resources.
+	\item \textcolor{cyan}{limit\_rate} – Limits the rate at which responses are transmitted to a client, per connection (so clients that open multiple connections can consume this amount of bandwidth for each connection). Setting a limit can prevent the system from being overloaded by certain clients, ensuring more even quality of service for all clients.
+	\item \textcolor{cyan}{limit\_req and limit\_req\_zone} – Limit the rate of requests being processed by NGINX, which has the same benefits as setting limit\_rate. They can also improve security, especially for login pages, by limiting the request rate to a value reasonable for human users but too slow for programs trying to overwhelm your application with requests (such as bots in a DDoS attack).
+	\item \textcolor{cyan}{max\_conns}  parameter to the server directive in an upstream configuration block – Sets the maximum number of simultaneous connections accepted by a server in an upstream group. Imposing a limit can help prevent the upstream servers from being overloaded. Setting the value to 0 (zero, the default) means there is no limit.
 \end{itemize}
 \end{frame}
 
@@ -592,6 +601,8 @@ that a worker process may have open. This includes, but is not limited to, clien
 %	\end{minipage}
 %\end{frame}
 
+
+\section{Conclusion}
 
 \begin{frame}{Conclusion}
 \centering
